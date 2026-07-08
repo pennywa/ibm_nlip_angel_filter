@@ -183,12 +183,11 @@ def build_candidate_decision_matrix_from_provider_payloads(
         observed_quality_rating = aggregated_candidate_record["observed_quality_rating"]
         if observed_quality_rating is None:
             observed_quality_rating = DEFAULT_MISSING_QUALITY_RATING
-        observed_rating_count = int(
-            aggregated_candidate_record.get(
-                "observed_rating_count",
-                DEFAULT_MISSING_RATING_COUNT,
-            ),
-        )
+        observed_rating_count = aggregated_candidate_record.get("observed_rating_count")
+        if observed_rating_count is None:
+            observed_rating_count = DEFAULT_MISSING_RATING_COUNT
+        else:
+            observed_rating_count = int(observed_rating_count)
 
         normalized_cost_score_value = _normalize_cost_to_unit_interval(
             raw_cost_amount=float(raw_cost_amount),
