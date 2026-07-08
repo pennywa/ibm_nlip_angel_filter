@@ -19,7 +19,7 @@ class OpenAIProvider(BaseProvider):
     """Adapter for OpenAI comparison-shopping recommendation requests."""
 
     PROVIDER_IDENTIFIER: str = "openai"
-    OPENAI_COMPARISON_SHOPPING_MODEL: str = "gpt-4o"
+    OPENAI_COMPARISON_SHOPPING_MODEL: str = "gpt-5-nano"
 
     def __init__(self, openai_api_key: str) -> None:
         self._openai_api_key = openai_api_key
