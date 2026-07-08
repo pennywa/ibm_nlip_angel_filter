@@ -266,6 +266,18 @@ flowchart LR
 
 > **Never commit** `OPENAI_API_KEY`, `GEMINI_API_KEY`, `WATSON_API_KEY`, `JWT_SECRET_KEY`, or production `ALLOWED_GITHUB_USERNAMES` values to source control.
 
+- **Delete** feature branches after merge to keep the repository clean.
+
+---
+
+## 🛡️ Resilience & Fault-Tolerance Strategy
+
+The orchestrator is architected to achieve digital sovereignty and absolute uptime by utilizing a multi-tier parallel fan-out approach. The system dynamically adapts to credential availability and network constraints:
+
+1. **Partial Cloud Availability (OpenAI Only):** The architecture is decoupled so that it functions flawlessly even if only a single valid API key (the `OPENAI_API_KEY`) is provided. Upstream failures from missing or invalid credentials (such as Gemini `404` or Watson `400` blocks) are gracefully isolated and logged as `excluded_provider_identifiers` without bottlenecking active gateways.
+2. **Total Cloud Blackout Fallback (Zero Keys Active):** In the event of a total network failure or if all cloud credentials are down/missing, the pipeline automatically defaults to **Local Sovereignty Mode**. The system routes the comparison-shopping data extraction tasks to the local open-source `llama3.2` model instance via Ollama (`http://127.0.0.1:11434`). 
+3. **Data Integrity Guarantee:** Whether responses are fetched from live cloud clusters or local arrays, the underlying `matrix_ranker` applies robust `NoneType` safety fallbacks and Z-score calculations, ensuring users always receive valid, sorted decisions.
+
 ---
 
 ## Environment Configuration
