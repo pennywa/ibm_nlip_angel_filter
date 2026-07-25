@@ -11,6 +11,7 @@ from fastapi.responses import RedirectResponse
 
 from auth.authentication_settings import AuthenticationSettings, get_authentication_settings
 from auth.jwt_token_service import (
+    FEDERATOR_ACCESS_TOKEN_COOKIE_NAME,
     JWT_GITHUB_USERNAME_CLAIM,
     JwtTokenValidationError,
     decode_and_validate_federator_access_token,
@@ -140,6 +141,7 @@ async def initiate_github_oauth_authorization(
 @github_oauth_router.get(
     "/callback",
     summary="Handle GitHub OAuth callback and exchange authorization code",
+    response_class=RedirectResponse,
 )
 async def handle_github_oauth_callback(
     request: Request,
@@ -154,11 +156,11 @@ async def handle_github_oauth_callback(
         description="CSRF state token echoed by GitHub OAuth.",
     ),
     authentication_settings: AuthenticationSettings = Depends(get_authentication_settings),
-) -> dict[str, Any]:
+) -> RedirectResponse:
     """
     Exchange the GitHub authorization code, validate the allowlist, and mint a JWT.
 
-    Returns a federator access token when the GitHub identity is allowlisted.
+    Sets a browser session cookie and redirects to the federator dashboard.
     """
     stored_oauth_csrf_state_token = request.cookies.get(OAUTH_CSRF_STATE_COOKIE_NAME)
     if (
@@ -202,12 +204,21 @@ async def handle_github_oauth_callback(
         authentication_settings=authentication_settings,
     )
 
-    return {
-        "token_type": "Bearer",
-        "federator_access_token": federator_access_token,
-        "github_username": authenticated_github_username,
-        "expires_in_seconds": authentication_settings.jwt_token_expiration_seconds,
-    }
+    dashboard_redirect_response = RedirectResponse(
+        url="/dashboard",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+    dashboard_redirect_response.set_cookie(
+        key=FEDERATOR_ACCESS_TOKEN_COOKIE_NAME,
+        value=federator_access_token,
+        httponly=True,
+        secure=request.url.scheme == "https",
+        samesite="lax",
+        max_age=authentication_settings.jwt_token_expiration_seconds,
+    )
+    dashboard_redirect_response.delete_cookie(key=OAUTH_CSRF_STATE_COOKIE_NAME)
+
+    return dashboard_redirect_response
 
 
 @github_oauth_router.get(

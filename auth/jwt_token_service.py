@@ -11,6 +11,7 @@ from auth.authentication_settings import AuthenticationSettings
 JWT_SIGNING_ALGORITHM: str = "HS256"
 JWT_GITHUB_USERNAME_CLAIM: str = "github_username"
 JWT_SUBJECT_CLAIM: str = "sub"
+FEDERATOR_ACCESS_TOKEN_COOKIE_NAME: str = "federator_access_token"
 
 
 class JwtTokenValidationError(Exception):
@@ -111,3 +112,19 @@ def extract_bearer_token_from_authorization_header(
         return None
 
     return bearer_token_value.strip()
+
+
+def extract_federator_access_token_from_request_cookies(
+    request_cookies: dict[str, str],
+) -> str | None:
+    """
+    Parse a federator JWT from the browser session cookie.
+
+    Returns:
+        The raw JWT string, or None when the session cookie is absent or blank.
+    """
+    federator_access_token = request_cookies.get(FEDERATOR_ACCESS_TOKEN_COOKIE_NAME)
+    if not federator_access_token or not federator_access_token.strip():
+        return None
+
+    return federator_access_token.strip()

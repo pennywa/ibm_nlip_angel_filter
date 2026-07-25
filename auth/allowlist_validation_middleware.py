@@ -37,6 +37,7 @@ class AllowlistValidationMiddleware(BaseHTTPMiddleware):
         "/docs",
         "/openapi.json",
         "/redoc",
+        "/dashboard",
     )
 
     REQUEST_STATE_GITHUB_USERNAME_KEY: str = "authenticated_github_username"
