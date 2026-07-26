@@ -20,7 +20,7 @@ class GeminiProvider(BaseProvider):
     """Adapter for Google Gemini comparison-shopping recommendation requests."""
 
     PROVIDER_IDENTIFIER: str = "gemini"
-    GEMINI_COMPARISON_SHOPPING_MODEL: str = "gemini-1.5-pro"
+    GEMINI_COMPARISON_SHOPPING_MODEL: str = "gemini-1.5-flash"
 
     def __init__(self, gemini_api_key: str) -> None:
         self._gemini_api_key = gemini_api_key
@@ -40,7 +40,7 @@ class GeminiProvider(BaseProvider):
         self,
         user_search_query: str,
     ) -> ProviderResponsePayload:
-        """Query Gemini 1.5 Pro for structured comparison-shopping recommendations."""
+        """Query Gemini 1.5 Flash for structured comparison-shopping recommendations."""
         gemini_client = self._get_gemini_client()
 
         gemini_generation_config = types.GenerateContentConfig(
