@@ -6,6 +6,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /build
 
+# Install C compiler and build tools required for compiling C-extension wheels
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN pip install --no-cache-dir --upgrade pip wheel
 
 COPY pyproject.toml ./
@@ -24,7 +30,7 @@ subprocess.run(
 )
 BUILD_DEPENDENCY_WHEELS
 
-# --- Runtime Stage: lean production image with non-root execution ---
+# Runtime Stage: lean production image with non-root execution ---
 FROM python:3.12-slim AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
