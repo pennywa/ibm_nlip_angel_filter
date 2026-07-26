@@ -43,7 +43,7 @@ angel_filter_fastapi_application = FastAPI(
     version="0.1.0",
 )
 
-@angel_filter_fastapi_application.get("/", include_in_schema=False)
+@angel_filter_fastapi_application.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)
 async def root_redirect():
     """Redirect root hits directly to the dashboard."""
     return RedirectResponse(url="/dashboard")
