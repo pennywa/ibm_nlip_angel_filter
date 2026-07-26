@@ -3,7 +3,7 @@
 import logging
 
 from fastapi import FastAPI, Form, HTTPException, Query, Request, status
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 
 from auth.allowlist_validation_middleware import AllowlistValidationMiddleware
 from auth.dashboard_session_guard import (
@@ -42,6 +42,11 @@ angel_filter_fastapi_application = FastAPI(
     ),
     version="0.1.0",
 )
+
+@angel_filter_fastapi_application.get("/", include_in_schema=False)
+async def root_redirect():
+    """Redirect root hits directly to the dashboard."""
+    return RedirectResponse(url="/dashboard")
 
 angel_filter_fastapi_application.add_middleware(AllowlistValidationMiddleware)
 angel_filter_fastapi_application.include_router(github_oauth_router)
